@@ -18,3 +18,5 @@ hello.bin: hello.elf
 
 clean:
 	rm -f hello.elf hello.bin
+
+.PHONY: all clean
