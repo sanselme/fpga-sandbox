@@ -235,3 +235,10 @@ target
 
 # debug information files
 *.dwo
+
+# Project Files
+
+build/
+
+*.bin
+*.elf
