@@ -1,0 +1,3 @@
+import libdemo
+
+demo()
