@@ -7,6 +7,7 @@ add_compile_options(
   "$<$<AND:$<COMPILE_LANGUAGE:Swift>,$<CONFIG:Release>>:SHELL:-wmo -O>"
   "$<$<AND:$<COMPILE_LANGUAGE:Swift>,$<NOT:$<CONFIG:Release>>>:SHELL:-wmo -g -Onone>"
   "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-enable-experimental-feature Embedded>"
+  "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-enable-experimental-feature Extern>"
   "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-target $ENV{TARGET}>"
   "$<$<COMPILE_LANGUAGE:Swift>:SHELL:-Xfrontend -function-sections>"
 )
