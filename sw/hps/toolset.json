@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "1.0",
+  "swiftCompiler": {
+    "extraCLIOptions": [
+      "-enable-experimental-feature", "Embedded",
+      "-enable-experimental-feature", "Extern",
+      "-Xfrontend", "-disable-stack-protector",
+      "-Xfrontend", "-enable-single-module-llvm-emission",
+      "-Xfrontend", "-function-sections",
+      "-Xfrontend", "-mergeable-symbols",
+      "-Xclang-linker", "-fuse-ld=lld",
+      "-Xclang-linker", "-nostdlib",
+      "-assert-config", "Debug"
+    ]
+  },
+  "cCompiler": {
+    "extraCLIOptions": [
+      "-ffunction-sections",
+      "-fno-common",
+      "-fno-stack-protector",
+      "-mthumb",
+      "-nostdlib",
+      "-Wall"
+    ]
+  },
+  "linker": {
+    "extraCLIOptions": [
+      "-nostdlib",
+      "-t", "-v"
+    ]
+  }
+}

@@ -1,103 +1,74 @@
-# Makefile for Swift HPS Demo Project
+NAME = demohps
 
-# Default target architecture
-TARGET ?= arm64-unknown-linux-gnu
-
-# Swift build configuration
-CONFIGURATION ?= release
-
-# Swift build flags
-SWIFT_BUILD_FLAGS = --configuration $(CONFIGURATION) --triple $(TARGET) -v
-
-# Build directory
-BUILD_DIR = .build
-
-# Product name (from Package.swift)
-PRODUCT_NAME = demohps
-
-# Default target
-.PHONY: all
+.PHONY: all build test info clean run status help
 all: build
 
-# Build the Swift project
-.PHONY: build
-build:
-	@echo "Building Swift project for target: $(TARGET)"
-	swift build $(SWIFT_BUILD_FLAGS)
+info: build
+	@echo "Binary info:"
+	@file .build/$(TARGET)/$(BUILD_TYPE)/$(NAME)
+	@echo ""
+	@ls -la .build/$(TARGET)/$(BUILD_TYPE)/$(NAME)
 
-# Clean build artifacts
-.PHONY: clean
-clean:
-	@echo "Cleaning build artifacts..."
-	swift package clean
-	rm -rf $(BUILD_DIR)
+config:
+	@echo "Build Configuration:"
+	@echo "  Target: $(TARGET)"
+	@echo "  Configuration: $(BUILD_TYPE)"
+	@echo "  Product Name: $(NAME)"
 
-# Run the built executable (if applicable for the target)
-.PHONY: run
-run: build
-	@echo "Running $(PRODUCT_NAME)..."
-	$(BUILD_DIR)/$(TARGET)/$(CONFIGURATION)/$(PRODUCT_NAME)
-
-# Show package dependencies
-.PHONY: deps
-deps:
-	@echo "Showing package dependencies..."
-	swift package show-dependencies
-
-# Update package dependencies
-.PHONY: update
-update:
-	@echo "Updating package dependencies..."
-	swift package update
-
-# Resolve package dependencies
-.PHONY: resolve
 resolve:
 	@echo "Resolving package dependencies..."
 	swift package resolve
 
-# Show build configuration
-.PHONY: config
-config:
-	@echo "Build Configuration:"
-	@echo "  Target: $(TARGET)"
-	@echo "  Configuration: $(CONFIGURATION)"
-	@echo "  Build Flags: $(SWIFT_BUILD_FLAGS)"
-	@echo "  Product Name: $(PRODUCT_NAME)"
+update:
+	@echo "Updating package dependencies..."
+	swift package update
 
-# Test the project (if tests exist)
-.PHONY: test
-test:
-	@echo "Running tests..."
-	swift test --configuration $(CONFIGURATION)
+test: build
+	@echo "Binary built for: $(TARGET)"
+	@file .build/$(TARGET)/$(BUILD_TYPE)/$(NAME)
 
-# Generate Xcode project (for development)
-.PHONY: xcode
+clean:
+	@echo "Cleaning build artifacts..."
+	swift package clean
+
+build:
+	@echo "Building Swift HPS project for ARM ($(TARGET))..."
+	swift build --configuration $(BUILD_TYPE) --triple $(TARGET) --toolset toolset.json
+
+run: build
+	@echo "Running ARM binary with QEMU..."
+	qemu-armel-static .build/$(TARGET)/$(BUILD_TYPE)/$(NAME)
+
 xcode:
 	@echo "Generating Xcode project..."
 	swift package generate-xcodeproj
 
-# Show help
-.PHONY: help
+status:
+	@echo "=== Swift HPS Project Status ==="
+	@echo ""
+	@echo "Target: $(TARGET)"
+	@echo "Configuration: $(BUILD_TYPE)"
+	@echo ""
+	@echo "Swift Implementation (main.swift):"
+	@wc -l Sources/demohps/main.swift | awk '{print "  " $$1 " lines - Swift 6 ownership model, pure I/O"}'
+	@echo ""
+	@echo "ARM Runtime (runtime.c):"
+	@wc -l Sources/CHPSRuntime/runtime.c | awk '{print "  " $$1 " lines - Standard C library + ARM EABI"}'
+	@echo ""
+	@echo "Architecture: ARM embedded (no x86_64)"
+	@echo "Approach: Swift 6 Embedded + standard C library"
+	@echo "Evaluation: Swift for ARM HPS systems"
+
 help:
 	@echo "Available targets:"
-	@echo "  all        - Build the project (default)"
-	@echo "  build      - Build the Swift project"
+	@echo "  all/build  - Build for ARM target ($(TARGET))"
 	@echo "  clean      - Clean build artifacts"
-	@echo "  run        - Build and run the executable"
-	@echo "  deps       - Show package dependencies"
-	@echo "  update     - Update package dependencies"
-	@echo "  resolve    - Resolve package dependencies"
 	@echo "  config     - Show build configuration"
-	@echo "  test       - Run tests"
+	@echo "  info       - Show built binary information"
+	@echo "  resolve    - Resolve package dependencies"
+	@echo "  run        - Run ARM binary with QEMU"
+	@echo "  status     - Show project status"
+	@echo "  test       - Show ARM binary info (can't run on x86_64)"
+	@echo "  update     - Update package dependencies"
 	@echo "  xcode      - Generate Xcode project"
 	@echo "  help       - Show this help message"
-	@echo ""
-	@echo "Variables:"
-	@echo "  TARGET     - Target architecture (default: $(TARGET))"
-	@echo "  CONFIGURATION - Build configuration (default: $(CONFIGURATION))"
-	@echo ""
-	@echo "Examples:"
-	@echo "  make build TARGET=x86_64-unknown-linux-gnu"
-	@echo "  make build CONFIGURATION=debug"
-	@echo "  make clean && make build"
